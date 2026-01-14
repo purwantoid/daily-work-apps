@@ -13,14 +13,7 @@ let package = Package(
         .executableTarget(
             name: "WorkLogger",
             path: ".",
-            exclude: ["Package.swift"],
-            sources: [
-                "WorkLoggerApp.swift",
-                "AppDelegate.swift",
-                "MainView.swift",
-                "CalendarManager.swift",
-                "Models.swift"
-            ]
+            exclude: ["Package.swift"]
         )
     ]
 )
