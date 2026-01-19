@@ -44,19 +44,19 @@ public struct EventRow: View {
             
             // Time
             Text(event.timeFormatted)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundColor(.black.opacity(0.4))
-                .frame(width: 65, alignment: .leading)
+                .frame(width: 75, alignment: .leading)
             
             // Title & Notes
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundColor(event.isPaused ? .black.opacity(0.5) : .black.opacity(0.8))
                 
                 if let notes = event.notes {
                     Text(notes)
-                        .font(.system(size: 12, design: .rounded))
+                        .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.black.opacity(0.4))
                         .lineLimit(1)
                 }
@@ -67,7 +67,7 @@ public struct EventRow: View {
             // Duration & Copy
             VStack(alignment: .trailing, spacing: 6) {
                 Text(event.durationFormatted)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.black.opacity(0.4))
                 
                 Button(action: {

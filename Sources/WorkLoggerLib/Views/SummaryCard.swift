@@ -16,16 +16,16 @@ public struct SummaryCard: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.system(size: 11, weight: .black, design: .rounded))
+                .font(.system(size: 13, weight: .black, design: .rounded))
                 .foregroundColor(color.opacity(0.5))
                 .tracking(1.0)
             
             Text(value)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundColor(color.opacity(0.8))
             
             Text(subtitle)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.black.opacity(0.4))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
