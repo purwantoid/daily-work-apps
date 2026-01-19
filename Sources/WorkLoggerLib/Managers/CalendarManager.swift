@@ -1,10 +1,10 @@
 import Foundation
 import AuthenticationServices
 
-class CalendarManager: ObservableObject {
-    @Published var events: [WorkEvent] = []
-    @Published var isAuthenticated = false
-    @Published var activeTrackingEvent: WorkEvent?
+public class CalendarManager: ObservableObject {
+    @Published public var events: [WorkEvent] = []
+    @Published public var isAuthenticated = false
+    @Published public var activeTrackingEvent: WorkEvent?
     
     // Configuration is now handled in Config.swift
     private let clientID = Config.googleClientID
@@ -17,8 +17,12 @@ class CalendarManager: ObservableObject {
     private let googleService = GoogleCalendarService()
     private let authContext = AuthPresentationContext()
     
-    init() {
-        loadMockData()
+    public init() {
+        loadEvents()
+    }
+    
+    private func loadEvents() {
+        events = DatabaseManager.shared.fetchEvents()
     }
     
     func authenticate() {
@@ -89,7 +93,8 @@ class CalendarManager: ObservableObject {
         )
         newEvent.lastStartTime = Date()
         activeTrackingEvent = newEvent
-        events.append(newEvent)
+        events.insert(newEvent, at: 0)
+        DatabaseManager.shared.saveEvent(newEvent)
     }
     
     func pauseTracking() {
@@ -105,6 +110,7 @@ class CalendarManager: ObservableObject {
             events[index] = event
         }
         activeTrackingEvent = event
+        DatabaseManager.shared.updateEvent(event)
     }
     
     func resumeTracking(event toResume: WorkEvent? = nil) {
@@ -124,6 +130,7 @@ class CalendarManager: ObservableObject {
             events[index] = targetEvent
         }
         activeTrackingEvent = targetEvent
+        DatabaseManager.shared.updateEvent(targetEvent)
     }
     
     func endTracking() {
@@ -141,7 +148,9 @@ class CalendarManager: ObservableObject {
         if let index = events.firstIndex(where: { $0.id == event.id }) {
             events[index] = event
         }
+        DatabaseManager.shared.updateEvent(event)
         
+        /*
         // Sync with Google Calendar if authenticated
         if isAuthenticated, let token = accessToken {
             let finalEvent = event
@@ -149,18 +158,27 @@ class CalendarManager: ObservableObject {
                 try? await googleService.createEvent(token: token, event: finalEvent)
             }
         }
+        */
         
         activeTrackingEvent = nil
     }
     
-    private func loadMockData() {
-        let today = Calendar.current.startOfDay(for: Date())
-        events = [
-            WorkEvent(title: "Daily Standup", notes: "Sprint update", startTime: today.addingTimeInterval(9*3600), endTime: today.addingTimeInterval(9.25*3600), type: .meeting),
-            WorkEvent(title: "Sprint Planning", notes: "Plan for next sprint", startTime: today.addingTimeInterval(10*3600), endTime: today.addingTimeInterval(11*3600), type: .planning),
-            WorkEvent(title: "1:1 with Sarah", notes: "Performance review", startTime: today.addingTimeInterval(14*3600), endTime: today.addingTimeInterval(14.5*3600), type: .meeting),
-            WorkEvent(title: "Code Review Session", notes: "Review PR #123", startTime: today.addingTimeInterval(16*3600), endTime: today.addingTimeInterval(16.75*3600), type: .codeReview)
-        ]
+    func deleteEvent(_ event: WorkEvent) {
+        if activeTrackingEvent?.id == event.id {
+            activeTrackingEvent = nil
+        }
+        events.removeAll(where: { $0.id == event.id })
+        DatabaseManager.shared.deleteEvent(id: event.id)
+    }
+    
+    func updateEvent(_ event: WorkEvent) {
+        if let index = events.firstIndex(where: { $0.id == event.id }) {
+            events[index] = event
+        }
+        if activeTrackingEvent?.id == event.id {
+            activeTrackingEvent = event
+        }
+        DatabaseManager.shared.updateEvent(event)
     }
 }
 

@@ -1,15 +1,18 @@
 import SwiftUI
 import AppKit
 
-struct MainView: View {
+public struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @Namespace private var animation
+    @FocusState private var isTitleFocused: Bool
     
-    enum Tab {
+    public init() {}
+    
+    public enum Tab {
         case timeline, summary
     }
     
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             // Header
             HStack(alignment: .center) {
@@ -25,19 +28,23 @@ struct MainView: View {
                 
                 Spacer()
                 
+                /*
                 Button(action: { viewModel.authenticate() }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: viewModel.isAuthenticated ? "checkmark.circle.fill" : "link")
-                        Text(viewModel.isAuthenticated ? "Google Sync Action" : "Connect Google")
-                    }
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(viewModel.isAuthenticated ? Color.green.opacity(0.1) : Color.blue.opacity(0.1))
-                    .foregroundColor(viewModel.isAuthenticated ? .green : .blue)
-                    .cornerRadius(8)
+                    ...
                 }
                 .buttonStyle(.plain)
+                */
+                
+                Button(action: { NSApp.terminate(nil) }) {
+                    Image(systemName: "power")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.red.opacity(0.6))
+                        .padding(8)
+                        .background(Color.red.opacity(0.05))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .help("Quit Application")
             }
             .padding(.horizontal, 24)
             .padding(.top, 24)
@@ -81,9 +88,14 @@ struct MainView: View {
                             .textFieldStyle(PlainTextFieldStyle())
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundColor(.black.opacity(0.8))
+                            .focused($isTitleFocused)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isTitleFocused = true
+                    }
                     
                     Divider().opacity(0.05).padding(.horizontal, 16)
                     
@@ -241,14 +253,20 @@ struct MainView: View {
             // Content
             Group {
                 if viewModel.selectedTab == .summary {
-                    SummaryContentView(events: viewModel.events) { event in
-                        withAnimation { viewModel.resumeTracking(event: event) }
-                    }
+                    SummaryContentView(
+                        events: viewModel.events,
+                        onResume: { event in withAnimation { viewModel.resumeTracking(event: event) } },
+                        onDelete: { event in withAnimation { viewModel.deleteEvent(event) } },
+                        onUpdate: { event in withAnimation { viewModel.updateEvent(event) } }
+                    )
                     .transition(.opacity)
                 } else {
-                    TimelineContentView(events: viewModel.events) { event in
-                        withAnimation { viewModel.resumeTracking(event: event) }
-                    }
+                    TimelineContentView(
+                        events: viewModel.events,
+                        onResume: { event in withAnimation { viewModel.resumeTracking(event: event) } },
+                        onDelete: { event in withAnimation { viewModel.deleteEvent(event) } },
+                        onUpdate: { event in withAnimation { viewModel.updateEvent(event) } }
+                    )
                     .transition(.opacity)
                 }
             }
@@ -287,6 +305,10 @@ struct MainView: View {
         )
         .preferredColorScheme(.light)
         .frame(width: 385, height: 900)
-        .textSelection(.enabled)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isTitleFocused = true
+            }
+        }
     }
 }

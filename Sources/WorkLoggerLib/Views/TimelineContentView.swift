@@ -1,10 +1,25 @@
 import SwiftUI
 
-struct TimelineContentView: View {
-    let events: [WorkEvent]
-    var onResume: (WorkEvent) -> Void
+public struct TimelineContentView: View {
+    public let events: [WorkEvent]
+    public var onResume: (WorkEvent) -> Void
+    public var onDelete: (WorkEvent) -> Void
+    public var onUpdate: (WorkEvent) -> Void
     
-    var body: some View {
+    @State private var isEditing = false
+    @State private var selectedEvent: WorkEvent?
+    @State private var editedTitle = ""
+    @State private var editedNotes = ""
+    @State private var editedType: EventType = .task
+    
+    public init(events: [WorkEvent], onResume: @escaping (WorkEvent) -> Void, onDelete: @escaping (WorkEvent) -> Void, onUpdate: @escaping (WorkEvent) -> Void) {
+        self.events = events
+        self.onResume = onResume
+        self.onDelete = onDelete
+        self.onUpdate = onUpdate
+    }
+    
+    public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("TODAY'S TIMELINE")
@@ -77,10 +92,60 @@ struct TimelineContentView: View {
                             .padding(.vertical, 10)
                         }
                         .frame(minHeight: 80)
+                        .contextMenu {
+                            Button(action: {
+                                selectedEvent = event
+                                editedTitle = event.title
+                                editedNotes = event.notes ?? ""
+                                editedType = event.type
+                                isEditing = true
+                            }) {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            
+                            Button(role: .destructive, action: { onDelete(event) }) {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 24)
             }
+        }
+        .sheet(isPresented: $isEditing) {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Edit Event")
+                    .font(.headline)
+                
+                TextField("Title", text: $editedTitle)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                TextField("Notes", text: $editedNotes)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                Picker("Type", selection: $editedType) {
+                    ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                
+                HStack {
+                    Button("Cancel") { isEditing = false }
+                    Spacer()
+                    Button("Save") {
+                        if var updatedEvent = selectedEvent {
+                            updatedEvent.title = editedTitle
+                            updatedEvent.notes = editedNotes.isEmpty ? nil : editedNotes
+                            updatedEvent.type = editedType
+                            onUpdate(updatedEvent)
+                        }
+                        isEditing = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding()
+            .frame(width: 300)
         }
     }
 }

@@ -1,8 +1,17 @@
 import SwiftUI
 
-struct SummaryContentView: View {
-    let events: [WorkEvent]
-    var onResume: (WorkEvent) -> Void
+public struct SummaryContentView: View {
+    public let events: [WorkEvent]
+    public var onResume: (WorkEvent) -> Void
+    public var onDelete: (WorkEvent) -> Void
+    public var onUpdate: (WorkEvent) -> Void
+    
+    public init(events: [WorkEvent], onResume: @escaping (WorkEvent) -> Void, onDelete: @escaping (WorkEvent) -> Void, onUpdate: @escaping (WorkEvent) -> Void) {
+        self.events = events
+        self.onResume = onResume
+        self.onDelete = onDelete
+        self.onUpdate = onUpdate
+    }
     
     var meetingTime: String {
         let seconds = events.filter { $0.type == .meeting }.reduce(0) { $0 + $1.duration }
@@ -16,7 +25,7 @@ struct SummaryContentView: View {
         return "\(minutes / 60)h \(minutes % 60)m"
     }
     
-    var body: some View {
+    public var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
                 HStack {
@@ -48,9 +57,12 @@ struct SummaryContentView: View {
                 
                 VStack(spacing: 8) {
                     ForEach(events.sorted(by: { $0.startTime < $1.startTime })) { event in
-                        EventRow(event: event) {
-                            onResume(event)
-                        }
+                        EventRow(
+                            event: event,
+                            onResume: { onResume(event) },
+                            onDelete: { onDelete(event) },
+                            onUpdate: { onUpdate($0) }
+                        )
                     }
                 }
                 .padding(.horizontal, 24)

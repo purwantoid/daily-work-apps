@@ -1,12 +1,19 @@
 import SwiftUI
 
-struct SummaryCard: View {
-    let title: String
-    let value: String
-    let subtitle: String
-    let color: Color
+public struct SummaryCard: View {
+    public let title: String
+    public let value: String
+    public let subtitle: String
+    public let color: Color
     
-    var body: some View {
+    public init(title: String, value: String, subtitle: String, color: Color) {
+        self.title = title
+        self.value = value
+        self.subtitle = subtitle
+        self.color = color
+    }
+    
+    public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.system(size: 11, weight: .black, design: .rounded))

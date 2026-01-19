@@ -1,17 +1,17 @@
 import SwiftUI
 import Combine
 
-class MainViewModel: ObservableObject {
-    @Published var calendarManager = CalendarManager()
-    @Published var selectedTab: MainView.Tab = .timeline
-    @Published var quickLogText: String = ""
-    @Published var quickLogNotes: String = ""
-    @Published var selectedType: EventType = .task
-    @Published var currentTime = Date()
+public class MainViewModel: ObservableObject {
+    @Published public var calendarManager = CalendarManager()
+    @Published public var selectedTab: MainView.Tab = .timeline
+    @Published public var quickLogText: String = ""
+    @Published public var quickLogNotes: String = ""
+    @Published public var selectedType: EventType = .task
+    @Published public var currentTime = Date()
     
     private var timer: AnyCancellable?
     
-    init() {
+    public init() {
         startTimer()
     }
     
@@ -46,6 +46,14 @@ class MainViewModel: ObservableObject {
     
     func endTracking() {
         calendarManager.endTracking()
+    }
+    
+    func deleteEvent(_ event: WorkEvent) {
+        calendarManager.deleteEvent(event)
+    }
+    
+    func updateEvent(_ event: WorkEvent) {
+        calendarManager.updateEvent(event)
     }
     
     var activeTrackingEvent: WorkEvent? {

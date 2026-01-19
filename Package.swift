@@ -7,13 +7,26 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
+        .library(name: "WorkLoggerLib", targets: ["WorkLoggerLib"]),
         .executable(name: "WorkLogger", targets: ["WorkLogger"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.3")
+    ],
     targets: [
+        .target(
+            name: "WorkLoggerLib",
+            dependencies: [
+                .product(name: "SQLite", package: "SQLite.swift")
+            ]
+        ),
         .executableTarget(
             name: "WorkLogger",
-            path: ".",
-            exclude: ["Package.swift"]
+            dependencies: ["WorkLoggerLib"]
+        ),
+        .testTarget(
+            name: "WorkLoggerTests",
+            dependencies: ["WorkLoggerLib"]
         )
     ]
 )

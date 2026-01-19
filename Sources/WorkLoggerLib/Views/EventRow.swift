@@ -1,11 +1,25 @@
 import SwiftUI
 import AppKit
 
-struct EventRow: View {
-    let event: WorkEvent
-    var onResume: (() -> Void)? = nil
+public struct EventRow: View {
+    public let event: WorkEvent
+    public var onResume: (() -> Void)? = nil
+    public var onDelete: (() -> Void)? = nil
+    public var onUpdate: ((WorkEvent) -> Void)? = nil
     
-    var body: some View {
+    @State private var isEditing = false
+    @State private var editedTitle = ""
+    @State private var editedNotes = ""
+    @State private var editedType: EventType = .task
+    
+    public init(event: WorkEvent, onResume: (() -> Void)? = nil, onDelete: (() -> Void)? = nil, onUpdate: ((WorkEvent) -> Void)? = nil) {
+        self.event = event
+        self.onResume = onResume
+        self.onDelete = onDelete
+        self.onUpdate = onUpdate
+    }
+    
+    public var body: some View {
         HStack(spacing: 0) {
             // Type Icon or Resume Toggle
             if event.isPaused && onResume != nil {
@@ -69,5 +83,53 @@ struct EventRow: View {
             }
         }
         .padding(.vertical, 12)
+        .contextMenu {
+            Button(action: {
+                editedTitle = event.title
+                editedNotes = event.notes ?? ""
+                editedType = event.type
+                isEditing = true
+            }) {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(role: .destructive, action: { onDelete?() }) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .sheet(isPresented: $isEditing) {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Edit Event")
+                    .font(.headline)
+                
+                TextField("Title", text: $editedTitle)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                TextField("Notes", text: $editedNotes)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                Picker("Type", selection: $editedType) {
+                    ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                
+                HStack {
+                    Button("Cancel") { isEditing = false }
+                    Spacer()
+                    Button("Save") {
+                        var updatedEvent = event
+                        updatedEvent.title = editedTitle
+                        updatedEvent.notes = editedNotes.isEmpty ? nil : editedNotes
+                        updatedEvent.type = editedType
+                        onUpdate?(updatedEvent)
+                        isEditing = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding()
+            .frame(width: 300)
+        }
     }
 }

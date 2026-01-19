@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum EventType: String, CaseIterable, Identifiable {
+public enum EventType: String, CaseIterable, Identifiable {
     case meeting = "Meeting"
     case task = "Task"
     case codeReview = "Code Review"
@@ -9,9 +9,9 @@ enum EventType: String, CaseIterable, Identifiable {
     case bounding = "Bounding"
     case workBlock = "Work Block" // Keep for legacy if needed
     
-    var id: String { self.rawValue }
+    public var id: String { self.rawValue }
     
-    var icon: String {
+    public var icon: String {
         switch self {
         case .meeting: return "video.fill"
         case .task: return "pencil.line"
@@ -23,7 +23,7 @@ enum EventType: String, CaseIterable, Identifiable {
         }
     }
     
-    var color: Color {
+    public var color: Color {
         switch self {
         case .meeting: return .purple
         case .task: return .blue
@@ -36,20 +36,32 @@ enum EventType: String, CaseIterable, Identifiable {
     }
 }
 
-struct WorkEvent: Identifiable {
-    let id = UUID()
-    var title: String
-    var notes: String?
-    var startTime: Date
-    var endTime: Date
-    var type: EventType
+public struct WorkEvent: Identifiable {
+    public var id: UUID = UUID()
+    public var title: String
+    public var notes: String?
+    public var startTime: Date
+    public var endTime: Date
+    public var type: EventType
     
     // Pause/Resume support
-    var isPaused: Bool = false
-    var totalAccumulatedDuration: TimeInterval = 0
-    var lastStartTime: Date?
+    public var isPaused: Bool = false
+    public var totalAccumulatedDuration: TimeInterval = 0
+    public var lastStartTime: Date?
     
-    var duration: TimeInterval {
+    public init(id: UUID = UUID(), title: String, notes: String? = nil, startTime: Date, endTime: Date, type: EventType, isPaused: Bool = false, totalAccumulatedDuration: TimeInterval = 0, lastStartTime: Date? = nil) {
+        self.id = id
+        self.title = title
+        self.notes = notes
+        self.startTime = startTime
+        self.endTime = endTime
+        self.type = type
+        self.isPaused = isPaused
+        self.totalAccumulatedDuration = totalAccumulatedDuration
+        self.lastStartTime = lastStartTime
+    }
+    
+    public var duration: TimeInterval {
         var currentSessionDuration: TimeInterval = 0
         if let lastStart = lastStartTime, !isPaused {
             currentSessionDuration = Date().timeIntervalSince(lastStart)
@@ -57,7 +69,7 @@ struct WorkEvent: Identifiable {
         return totalAccumulatedDuration + currentSessionDuration
     }
     
-    var durationFormatted: String {
+    public var durationFormatted: String {
         let minutes = Int(duration / 60)
         if minutes >= 60 {
             return "\(minutes / 60)h \(minutes % 60)m"
@@ -65,7 +77,7 @@ struct WorkEvent: Identifiable {
         return "\(minutes) min"
     }
     
-    var timeFormatted: String {
+    public var timeFormatted: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH.mm"
         return formatter.string(from: startTime)

@@ -1,11 +1,25 @@
 import AppKit
 import SwiftUI
+import WorkLoggerLib
+
+class FocusablePanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+    
+    override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
+        super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
+        self.isFloatingPanel = true
+        self.becomesKeyOnlyIfNeeded = false
+    }
+}
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var window: NSWindow?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+        
         // Create the status item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
@@ -21,9 +35,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let mainView = MainView()
         let hostingController = NSHostingController(rootView: mainView)
         
-        let window = NSWindow(
+        let window = FocusablePanel(
             contentRect: NSRect(x: 0, y: 0, width: 385, height: 900),
-            styleMask: [.borderless, .fullSizeContentView],
+            styleMask: [.nonactivatingPanel, .fullSizeContentView, .borderless, .hudWindow],
             backing: .buffered,
             defer: false
         )
@@ -34,6 +48,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.level = .floating
         window.hasShadow = true
         window.isMovableByWindowBackground = true
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         
         self.window = window
