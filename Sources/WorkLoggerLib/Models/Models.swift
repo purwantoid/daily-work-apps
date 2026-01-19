@@ -83,3 +83,19 @@ public struct WorkEvent: Identifiable {
         return formatter.string(from: startTime)
     }
 }
+
+public struct TodoItem: Identifiable {
+    public var id: UUID
+    public var title: String
+    public var notes: String?
+    public var targetDate: Date
+    public var isCompleted: Bool
+    
+    public init(id: UUID = UUID(), title: String, notes: String? = nil, targetDate: Date, isCompleted: Bool = false) {
+        self.id = id
+        self.title = title
+        self.notes = notes
+        self.targetDate = targetDate
+        self.isCompleted = isCompleted
+    }
+}

@@ -20,6 +20,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         
+        // Listen for notification to show window
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("ShowWorkLoggerWindow"), object: nil, queue: .main) { _ in
+            self.showWindow()
+        }
+        
+        // Request notification permissions
+        NotificationManager.shared.requestPermissions()
+        
         // Create the status item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
@@ -61,10 +69,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if window.isVisible {
             window.orderOut(nil)
         } else {
-            positionWindowInTopRight()
-            window.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
+            showWindow()
         }
+    }
+    
+    public func showWindow() {
+        guard let window = window else { return }
+        positionWindowInTopRight()
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     private func positionWindowInTopRight() {

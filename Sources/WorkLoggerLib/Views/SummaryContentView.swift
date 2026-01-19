@@ -13,13 +13,38 @@ public struct SummaryContentView: View {
         self.onUpdate = onUpdate
     }
     
-    var meetingTime: String {
+    private func copyStandup() {
+        let dateStr = Date().formatted(.dateTime.day().month().year())
+        var content = "🚀 Standup Summary - \(dateStr)\n\n"
+        
+        let sortedEvents = events.sorted(by: { $0.startTime < $1.startTime })
+        
+        if !sortedEvents.isEmpty {
+            content += "✅ Completed:\n"
+            for event in sortedEvents {
+                content += "• [\(event.type.rawValue)] \(event.title) (\(event.durationFormatted))\n"
+                if let notes = event.notes, !notes.isEmpty {
+                    content += "  └─ \(notes)\n"
+                }
+            }
+            content += "\n"
+        }
+        
+        content += "📊 Stats:\n"
+        content += "• Meetings: \(meetingTime)\n"
+        content += "• Deep Work: \(deepWorkTime)\n"
+        
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(content, forType: .string)
+    }
+
+    private var meetingTime: String {
         let seconds = events.filter { $0.type == .meeting }.reduce(0) { $0 + $1.duration }
         let minutes = Int(seconds / 60)
         return "\(minutes / 60)h \(minutes % 60)m"
     }
     
-    var deepWorkTime: String {
+    private var deepWorkTime: String {
         let seconds = events.filter { $0.type == .task || $0.type == .codeReview }.reduce(0) { $0 + $1.duration }
         let minutes = Int(seconds / 60)
         return "\(minutes / 60)h \(minutes % 60)m"
@@ -30,15 +55,15 @@ public struct SummaryContentView: View {
             VStack(spacing: 20) {
                 HStack {
                     Label("DAILY SUMMARY", systemImage: "doc.text")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
                     Spacer()
-                    Button(action: {}) {
+                    Button(action: { copyStandup() }) {
                         HStack(spacing: 6) {
                             Image(systemName: "doc.on.doc")
                             Text("Copy for Standup")
                         }
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(Color.white)

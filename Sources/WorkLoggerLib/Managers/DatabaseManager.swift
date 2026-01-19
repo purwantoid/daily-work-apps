@@ -20,6 +20,14 @@ public class DatabaseManager {
     private let totalAccumulatedDuration = Expression<Double>("total_accumulated_duration")
     private let lastStartTime = Expression<Double?>("last_start_time")
     
+    // Todo Table
+    private let todoItems = Table("todo_items")
+    private let todoId = Expression<String>("id")
+    private let todoTitle = Expression<String>("title")
+    private let todoNotes = Expression<String?>("notes")
+    private let todoTargetDate = Expression<Double>("target_date")
+    private let todoIsCompleted = Expression<Bool>("is_completed")
+    
     private init() {
         setupDatabase()
     }
@@ -53,6 +61,17 @@ public class DatabaseManager {
                 t.column(totalAccumulatedDuration)
                 t.column(lastStartTime)
             })
+            
+            try db.run(todoItems.create(ifNotExists: true) { t in
+                t.column(todoId, primaryKey: true)
+                t.column(todoTitle)
+                t.column(todoNotes)
+                t.column(todoTargetDate)
+                t.column(todoIsCompleted)
+            })
+            
+            // Migration for existing table
+            _ = try? db.run(todoItems.addColumn(todoNotes))
         } catch {
             print("Table creation error: \(error)")
         }
@@ -133,6 +152,75 @@ public class DatabaseManager {
             try db.run(filteredEvent.delete())
         } catch {
             print("Delete error: \(error)")
+        }
+    }
+    // MARK: - Todo CRUD
+    
+    public func saveTodo(_ todo: TodoItem) {
+        guard let db = db else { return }
+        do {
+            let insert = todoItems.insert(
+                todoId <- todo.id.uuidString,
+                todoTitle <- todo.title,
+                todoNotes <- todo.notes,
+                todoTargetDate <- todo.targetDate.timeIntervalSince1970,
+                todoIsCompleted <- todo.isCompleted
+            )
+            try db.run(insert)
+        } catch {
+            print("Insert todo error: \(error)")
+        }
+    }
+    
+    public func fetchTodos(for date: Date) -> [TodoItem] {
+        guard let db = db else { return [] }
+        
+        let startOfDay = Calendar.current.startOfDay(for: date).timeIntervalSince1970
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: date))!.timeIntervalSince1970
+
+        do {
+            let query = todoItems.filter(todoTargetDate >= startOfDay && todoTargetDate < endOfDay)
+            var items: [TodoItem] = []
+            for item in try db.prepare(query) {
+                if let uuid = UUID(uuidString: item[todoId]) {
+                    items.append(TodoItem(
+                        id: uuid,
+                        title: item[todoTitle],
+                        notes: item[todoNotes],
+                        targetDate: Date(timeIntervalSince1970: item[todoTargetDate]),
+                        isCompleted: item[todoIsCompleted]
+                    ))
+                }
+            }
+            return items
+        } catch {
+            print("Fetch todos error: \(error)")
+            return []
+        }
+    }
+    
+    public func updateTodo(_ todo: TodoItem) {
+        guard let db = db else { return }
+        let item = todoItems.filter(todoId == todo.id.uuidString)
+        do {
+            try db.run(item.update(
+                todoTitle <- todo.title,
+                todoNotes <- todo.notes,
+                todoTargetDate <- todo.targetDate.timeIntervalSince1970,
+                todoIsCompleted <- todo.isCompleted
+            ))
+        } catch {
+            print("Update todo error: \(error)")
+        }
+    }
+    
+    public func deleteTodo(id: UUID) {
+        guard let db = db else { return }
+        let item = todoItems.filter(todoId == id.uuidString)
+        do {
+            try db.run(item.delete())
+        } catch {
+            print("Delete todo error: \(error)")
         }
     }
 }

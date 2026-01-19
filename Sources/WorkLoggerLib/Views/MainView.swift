@@ -5,11 +5,12 @@ public struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @Namespace private var animation
     @FocusState private var isTitleFocused: Bool
+    @State private var showingSettings = false
     
     public init() {}
     
     public enum Tab {
-        case timeline, summary
+        case timeline, summary, tomorrow
     }
     
     public var body: some View {
@@ -18,22 +19,26 @@ public struct MainView: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Work Logger")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.15))
                     
                     Text(Date().formatted(.dateTime.weekday(.abbreviated).month().day()))
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundColor(.black.opacity(0.4))
                 }
                 
                 Spacer()
                 
-                /*
-                Button(action: { viewModel.authenticate() }) {
-                    ...
+                Button(action: { showingSettings = true }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.black.opacity(0.3))
                 }
                 .buttonStyle(.plain)
-                */
+                .padding(.trailing, 8)
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView(viewModel: viewModel)
+                }
                 
                 Button(action: { NSApp.terminate(nil) }) {
                     Image(systemName: "power")
@@ -52,32 +57,41 @@ public struct MainView: View {
             
             // Quick Log Input Area
             VStack(spacing: 16) {
-                // Type Selector
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in
-                            Button(action: { viewModel.selectedType = type }) {
-                                Text(type.rawValue)
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(viewModel.selectedType == type ? Color.blue.opacity(0.1) : Color.white)
-                                    .foregroundColor(viewModel.selectedType == type ? .blue : .black.opacity(0.6))
-                                    .cornerRadius(10)
-                                    .shadow(color: .black.opacity(0.02), radius: 3, x: 0, y: 1)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(viewModel.selectedType == type ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), lineWidth: 1)
-                                    )
-                            }
-                            .buttonStyle(.plain)
+            // Elegant Dropdown-style Menu
+            HStack {
+                Menu {
+                    ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in
+                        Button(action: { viewModel.selectedType = type }) {
+                            Text(type.rawValue)
                         }
                     }
-                    .padding(.horizontal, 24)
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: viewModel.selectedType.icon)
+                            .font(.system(size: 12))
+                            .foregroundColor(.blue.opacity(0.8))
+                        
+                        Text(viewModel.selectedType.rawValue)
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                        
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary.opacity(0.5))
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.primary.opacity(0.05))
+                    .cornerRadius(8)
                 }
-                .padding(.horizontal, -24) // Allow scroll to edges
+                .menuStyle(.borderlessButton)
+                .fixedSize()
                 
-                // Inputs Card
+                Spacer()
+            }
+            .padding(.horizontal, 16) // Align with the internal padding of the card below
+            .padding(.bottom, -8)
+            
+            // Inputs Card
                 VStack(spacing: 0) {
                     HStack(alignment: .center, spacing: 12) {
                         Image(systemName: "pencil.line")
@@ -86,7 +100,7 @@ public struct MainView: View {
                         
                         TextField("Task title...", text: $viewModel.quickLogText)
                             .textFieldStyle(PlainTextFieldStyle())
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
                             .foregroundColor(.black.opacity(0.8))
                             .focused($isTitleFocused)
                     }
@@ -107,7 +121,7 @@ public struct MainView: View {
                         
                         TextField("Add notes or description (optional)", text: $viewModel.quickLogNotes)
                             .textFieldStyle(PlainTextFieldStyle())
-                            .font(.system(size: 14, weight: .regular, design: .rounded))
+                            .font(.system(size: 16, weight: .regular, design: .rounded))
                             .foregroundColor(.black.opacity(0.6))
                     }
                     .padding(.horizontal, 16)
@@ -167,10 +181,10 @@ public struct MainView: View {
                     
                     VStack(alignment: .leading, spacing: 3) {
                         Text(active.title)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 17, weight: .semibold, design: .rounded))
                             .foregroundColor(.black.opacity(0.8))
                         Text(active.isPaused ? "Paused" : "Tracking...")
-                            .font(.system(size: 12, design: .rounded))
+                            .font(.system(size: 14, design: .rounded))
                             .foregroundColor(active.isPaused ? .blue.opacity(0.6) : .black.opacity(0.5))
                     }
                 } else {
@@ -186,10 +200,10 @@ public struct MainView: View {
                     
                     VStack(alignment: .leading, spacing: 3) {
                         Text("No active task")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 17, weight: .semibold, design: .rounded))
                             .foregroundColor(.black.opacity(0.8))
                         Text("Log something to start tracking")
-                            .font(.system(size: 12, design: .rounded))
+                            .font(.system(size: 14, design: .rounded))
                             .foregroundColor(.black.opacity(0.5))
                     }
                 }
@@ -243,6 +257,10 @@ public struct MainView: View {
                 TabButton(title: "Summary", icon: "list.bullet.indent", isSelected: viewModel.selectedTab == .summary, namespace: animation) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .summary }
                 }
+                
+                TabButton(title: "Tomorrow", icon: "calendar.badge.plus", isSelected: viewModel.selectedTab == .tomorrow, namespace: animation) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .tomorrow }
+                }
             }
             .padding(6)
             .background(Color.primary.opacity(0.04))
@@ -258,6 +276,16 @@ public struct MainView: View {
                         onResume: { event in withAnimation { viewModel.resumeTracking(event: event) } },
                         onDelete: { event in withAnimation { viewModel.deleteEvent(event) } },
                         onUpdate: { event in withAnimation { viewModel.updateEvent(event) } }
+                    )
+                    .transition(.opacity)
+                } else if viewModel.selectedTab == .tomorrow {
+                    TomorrowPlanView(
+                        todos: viewModel.tomorrowTodos,
+                        todoTitle: $viewModel.todoTitle,
+                        todoNotes: $viewModel.todoNotes,
+                        onAdd: { title, notes in withAnimation { viewModel.addTodo(title: title, notes: notes) } },
+                        onToggle: { todo in withAnimation { viewModel.toggleTodo(todo) } },
+                        onDelete: { todo in withAnimation { viewModel.deleteTodo(todo) } }
                     )
                     .transition(.opacity)
                 } else {
