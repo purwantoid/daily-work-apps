@@ -34,7 +34,7 @@ public struct TimelineContentView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(events.sorted(by: { $0.startTime < $1.startTime })) { event in
+                    ForEach(events.sorted(by: { $0.startTime > $1.startTime })) { event in
                         HStack(alignment: .top, spacing: 20) {
                             VStack(spacing: 0) {
                                 Circle()

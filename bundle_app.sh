@@ -47,5 +47,8 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
+echo "Signing the bundle (ad-hoc)..."
+codesign --force --deep --sign - "$APP_BUNDLE"
+
 echo "Done! $APP_BUNDLE has been created."
 echo "You can move it to your /Applications folder or run it directly."

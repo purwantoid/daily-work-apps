@@ -68,22 +68,40 @@ public struct SettingsView: View {
             Spacer()
             
             // Save Button
-            Button(action: {
-                viewModel.updateReminderSettings(morning: morningTime, evening: eveningTime)
-                dismiss()
-            }) {
-                HStack {
-                    Spacer()
-                    Text("Save Settings")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                    Spacer()
+            VStack(spacing: 12) {
+                Button(action: {
+                    NotificationManager.shared.sendTestNotification()
+                }) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "bell.badge.fill")
+                        Text("Send Test Notification (5s)")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        Spacer()
+                    }
+                    .padding(.vertical, 10)
+                    .background(Color.primary.opacity(0.05))
+                    .cornerRadius(10)
                 }
-                .padding(.vertical, 14)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(12)
+                .buttonStyle(.plain)
+                
+                Button(action: {
+                    viewModel.updateReminderSettings(morning: morningTime, evening: eveningTime)
+                    dismiss()
+                }) {
+                    HStack {
+                        Spacer()
+                        Text("Save Settings")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                        Spacer()
+                    }
+                    .padding(.vertical, 14)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(30)
         .frame(width: 385, height: 400)

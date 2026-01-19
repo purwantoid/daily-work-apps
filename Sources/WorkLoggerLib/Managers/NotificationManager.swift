@@ -58,6 +58,36 @@ public class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         )
     }
     
+    public func sendTestNotification() {
+        guard Bundle.main.bundleIdentifier != nil else { 
+            print("Cannot send test notification: No bundle identifier.")
+            return 
+        }
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            guard granted else { 
+                print("Notification permission not granted.")
+                return 
+            }
+            
+            let content = UNMutableNotificationContent()
+            content.title = "Test Notification 🔔"
+            content.body = "If you see this, notifications are working perfectly!"
+            content.sound = .default
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            let request = UNNotificationRequest(identifier: "test_notification", content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling test notification: \(error)")
+                } else {
+                    print("Test notification scheduled for 5 seconds from now.")
+                }
+            }
+        }
+    }
+    
     private func getStoredTime(for key: String) -> Date? {
         let timestamp = UserDefaults.standard.double(forKey: key)
         return timestamp > 0 ? Date(timeIntervalSince1970: timestamp) : nil

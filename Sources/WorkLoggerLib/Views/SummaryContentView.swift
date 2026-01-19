@@ -81,7 +81,7 @@ public struct SummaryContentView: View {
                 .padding(.horizontal, 24)
                 
                 VStack(spacing: 8) {
-                    ForEach(events.sorted(by: { $0.startTime < $1.startTime })) { event in
+                    ForEach(events.sorted(by: { $0.startTime > $1.startTime })) { event in
                         EventRow(
                             event: event,
                             onResume: { onResume(event) },
