@@ -3,10 +3,12 @@ import AppKit
 
 public struct EventDetailView: View {
     let event: WorkEvent
+    public var onEdit: (() -> Void)?
     @State private var copied = false
     
-    public init(event: WorkEvent) {
+    public init(event: WorkEvent, onEdit: (() -> Void)? = nil) {
         self.event = event
+        self.onEdit = onEdit
     }
     
     private func copyToClipboard() {
@@ -53,6 +55,19 @@ public struct EventDetailView: View {
                     }
                     
                     Spacer()
+                    
+                    if let onEdit = onEdit {
+                        Button(action: onEdit) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                                .padding(8)
+                                .background(Color.secondary.opacity(0.05))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Edit event")
+                    }
                     
                     Button(action: copyToClipboard) {
                         Image(systemName: copied ? "checkmark" : "doc.on.doc")

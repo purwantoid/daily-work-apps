@@ -288,7 +288,8 @@ public struct MainView: View {
                         todoNotes: $viewModel.todoNotes,
                         onAdd: { title, notes in withAnimation { viewModel.addTodo(title: title, notes: notes) } },
                         onToggle: { todo in withAnimation { viewModel.toggleTodo(todo) } },
-                        onDelete: { todo in withAnimation { viewModel.deleteTodo(todo) } }
+                        onDelete: { todo in withAnimation { viewModel.deleteTodo(todo) } },
+                        onUpdate: { todo in withAnimation { viewModel.updateTodo(todo) } }
                     )
                     .transition(.opacity)
                 } else {

@@ -95,7 +95,13 @@ public struct EventRow: View {
         }
         .padding(.vertical, 8)
         .popover(isPresented: $showingDetail) {
-            EventDetailView(event: event)
+            EventDetailView(event: event) {
+                editedTitle = event.title
+                editedNotes = event.notes ?? ""
+                editedType = event.type
+                isEditing = true
+                showingDetail = false
+            }
         }
         .contextMenu {
             Button(action: {

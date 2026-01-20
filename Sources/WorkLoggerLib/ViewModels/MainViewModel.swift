@@ -111,6 +111,11 @@ public class MainViewModel: ObservableObject {
         refreshTodos()
     }
     
+    public func updateTodo(_ todo: TodoItem) {
+        DatabaseManager.shared.updateTodo(todo)
+        refreshTodos()
+    }
+    
     public func startTodoAsTask(_ todo: TodoItem) {
         // Mark todo as completed
         var updated = todo
