@@ -2,6 +2,8 @@ import SwiftUI
 import Combine
 
 public class MainViewModel: ObservableObject {
+    public static let shared = MainViewModel()
+    
     @Published public var calendarManager = CalendarManager()
     @Published public var selectedTab: MainView.Tab = .timeline
     @Published public var quickLogText: String = ""
@@ -65,11 +67,11 @@ public class MainViewModel: ObservableObject {
         calendarManager.updateEvent(event)
     }
     
-    var activeTrackingEvent: WorkEvent? {
+    public var activeTrackingEvent: WorkEvent? {
         calendarManager.activeTrackingEvent
     }
     
-    var events: [WorkEvent] {
+    public var events: [WorkEvent] {
         calendarManager.events
     }
     

@@ -77,6 +77,13 @@ public struct WorkEvent: Identifiable {
         return "\(minutes) min"
     }
     
+    public var menuBarDuration: String {
+        let totalSeconds = Int(duration)
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
     public var timeFormatted: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH.mm"

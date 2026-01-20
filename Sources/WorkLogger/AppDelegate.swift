@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Combine
 import WorkLoggerLib
 
 class FocusablePanel: NSPanel {
@@ -16,6 +17,7 @@ class FocusablePanel: NSPanel {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var window: NSWindow?
+    private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -34,9 +36,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = statusItem?.button {
             button.image = NSImage(systemSymbolName: "calendar.badge.clock", accessibilityDescription: "Work Logger")
             button.action = #selector(toggleWindow(_:))
+            button.imagePosition = .imageLeft
         }
         
+        // Observe ViewModel for menu bar updates
+        MainViewModel.shared.$currentTime
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.updateMenuBarTitle()
+            }
+            .store(in: &cancellables)
+        
         setupWindow()
+    }
+    
+    private func updateMenuBarTitle() {
+        guard let button = statusItem?.button else { return }
+        
+        if let activeEvent = MainViewModel.shared.activeTrackingEvent, !activeEvent.isPaused {
+            let title = activeEvent.title.count > 15 ? String(activeEvent.title.prefix(12)) + "..." : activeEvent.title
+            button.title = "[\(title)] \(activeEvent.menuBarDuration)"
+            button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
+        } else {
+            button.title = ""
+        }
     }
     
     private func setupWindow() {

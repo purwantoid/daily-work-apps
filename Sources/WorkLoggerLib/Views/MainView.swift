@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 public struct MainView: View {
-    @StateObject private var viewModel = MainViewModel()
+    @StateObject private var viewModel = MainViewModel.shared
     @Namespace private var animation
     @FocusState private var isTitleFocused: Bool
     @State private var showingSettings = false
