@@ -118,40 +118,83 @@ public struct EventRow: View {
             }
         }
         .sheet(isPresented: $isEditing) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("Edit Event")
-                    .font(.headline)
+                    .font(.custom("JetBrains Mono", size: 14)).bold()
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 4)
                 
-                TextField("Title", text: $editedTitle, axis: .vertical)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .lineLimit(1...3)
-                
-                TextField("Notes", text: $editedNotes, axis: .vertical)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .lineLimit(2...5)
-                
-                Picker("Type", selection: $editedType) {
-                    ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in
-                        Text(type.rawValue).tag(type)
+                VStack(spacing: 0) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "pencil.line")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.black.opacity(0.4))
+                            .padding(.top, 2)
+                        
+                        TextField("Event title...", text: $editedTitle, axis: .vertical)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .font(.custom("JetBrains Mono", size: 14)).bold()
+                            .foregroundColor(.black.opacity(0.8))
+                            .lineLimit(1...3)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    
+                    Divider().opacity(0.05).padding(.horizontal, 16)
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "text.alignleft")
+                            .font(.system(size: 12))
+                            .foregroundColor(.black.opacity(0.3))
+                            .padding(.top, 3)
+                        
+                        TextField("Add notes or description...", text: $editedNotes, axis: .vertical)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .font(.custom("JetBrains Mono", size: 11))
+                            .foregroundColor(.black.opacity(0.6))
+                            .lineLimit(1...5)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                 }
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.black.opacity(0.05), lineWidth: 1)
+                )
                 
-                HStack {
+                HStack(spacing: 12) {
                     Button("Cancel") { isEditing = false }
+                        .font(.custom("JetBrains Mono", size: 12))
+                        .buttonStyle(.plain)
+                        .foregroundColor(.secondary)
+                    
                     Spacer()
-                    Button("Save") {
+                    
+                    Button(action: {
                         var updatedEvent = event
                         updatedEvent.title = editedTitle
                         updatedEvent.notes = editedNotes.isEmpty ? nil : editedNotes
-                        updatedEvent.type = editedType
                         onUpdate?(updatedEvent)
                         isEditing = false
+                    }) {
+                        Text("Save Changes")
+                            .font(.custom("JetBrains Mono", size: 12)).bold()
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(editedTitle.isEmpty ? Color.blue.opacity(0.3) : Color.blue)
+                            .cornerRadius(8)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.plain)
+                    .disabled(editedTitle.isEmpty)
                 }
+                .padding(.top, 4)
             }
-            .padding()
-            .frame(width: 300)
+            .padding(20)
+            .frame(width: 320)
         }
     }
 }
