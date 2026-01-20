@@ -13,13 +13,13 @@ public enum EventType: String, CaseIterable, Identifiable {
     
     public var icon: String {
         switch self {
-        case .meeting: return "video.fill"
-        case .task: return "pencil.line"
-        case .codeReview: return "bolt.horizontal.fill"
-        case .planning: return "calendar.badge.clock"
-        case .others: return "ellipsis.circle"
-        case .bounding: return "link"
-        case .workBlock: return "hammer.fill"
+        case .meeting: return "video.bubble.left.fill"
+        case .task: return "square.stack.3d.up.fill"
+        case .codeReview: return "terminal.fill"
+        case .planning: return "sparkles"
+        case .others: return "circle.grid.3x3.fill"
+        case .bounding: return "link.circle.fill"
+        case .workBlock: return "timer"
         }
     }
     

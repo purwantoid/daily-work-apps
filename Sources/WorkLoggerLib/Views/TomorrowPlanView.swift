@@ -21,27 +21,29 @@ public struct TomorrowPlanView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("TOMORROW'S PLAN")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                Label("TOMORROW'S PLAN", systemImage: "calendar.badge.plus")
+                    .font(.custom("JetBrains Mono", size: 12)).bold()
                     .foregroundColor(.secondary)
                 Spacer()
                 Text("\(todos.count) items")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.custom("JetBrains Mono", size: 10))
                     .foregroundColor(.secondary.opacity(0.7))
             }
             .padding(.horizontal, 24)
             
             // Enhanced Input Area
             VStack(spacing: 0) {
-                HStack(alignment: .center, spacing: 12) {
+                HStack(alignment: .top, spacing: 12) {
                     Image(systemName: "pencil.line")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.black.opacity(0.4))
+                        .padding(.top, 2)
                     
-                    TextField("Next day task title...", text: $todoTitle)
+                    TextField("Next day task title...", text: $todoTitle, axis: .vertical)
                         .textFieldStyle(PlainTextFieldStyle())
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .font(.custom("JetBrains Mono", size: 15)).bold()
                         .foregroundColor(.black.opacity(0.8))
+                        .lineLimit(1...3)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -50,14 +52,15 @@ public struct TomorrowPlanView: View {
                 
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: "text.alignleft")
-                        .font(.system(size: 16))
+                        .font(.system(size: 13))
                         .foregroundColor(.black.opacity(0.3))
                         .padding(.top, 3)
                     
-                    TextField("Add notes or description (optional)", text: $todoNotes)
+                    TextField("Add notes or description (optional)", text: $todoNotes, axis: .vertical)
                         .textFieldStyle(PlainTextFieldStyle())
-                        .font(.system(size: 16, weight: .regular, design: .rounded))
+                        .font(.custom("JetBrains Mono", size: 11))
                         .foregroundColor(.black.opacity(0.6))
+                        .lineLimit(1...5)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -82,14 +85,14 @@ public struct TomorrowPlanView: View {
                 HStack {
                     Spacer()
                     Image(systemName: "plus.circle.fill")
-                    Text("Add for Tomorrow")
+                    Text("Add Task")
                     Spacer()
                 }
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.custom("JetBrains Mono", size: 13)).bold()
                 .foregroundColor(.white)
-                .padding(.vertical, 12)
+                .padding(.vertical, 10)
                 .background(todoTitle.isEmpty ? Color.blue.opacity(0.3) : Color.blue)
-                .cornerRadius(12)
+                .cornerRadius(10)
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
@@ -106,15 +109,15 @@ public struct TomorrowPlanView: View {
                             }
                             .buttonStyle(.plain)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: 1) {
                                 Text(todo.title)
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .font(.custom("JetBrains Mono", size: 14)).bold()
                                     .foregroundColor(todo.isCompleted ? .secondary : .primary)
                                     .strikethrough(todo.isCompleted)
                                 
                                 if let notes = todo.notes {
                                     Text(notes)
-                                        .font(.system(size: 13))
+                                        .font(.custom("JetBrains Mono", size: 10))
                                         .foregroundColor(.secondary.opacity(0.8))
                                 }
                             }

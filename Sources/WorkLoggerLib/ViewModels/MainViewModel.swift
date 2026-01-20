@@ -9,6 +9,7 @@ public class MainViewModel: ObservableObject {
     @Published public var selectedType: EventType = .task
     @Published public var currentTime = Date()
     @Published public var tomorrowTodos: [TodoItem] = []
+    @Published public var todayTodos: [TodoItem] = []
     @Published public var todoTitle: String = ""
     @Published public var todoNotes: String = ""
     
@@ -19,7 +20,7 @@ public class MainViewModel: ObservableObject {
     
     public init() {
         startTimer()
-        fetchTomorrowTodos()
+        refreshTodos()
         loadReminderSettings()
     }
     
@@ -74,6 +75,15 @@ public class MainViewModel: ObservableObject {
     
     // MARK: - Todo Actions
     
+    public func refreshTodos() {
+        fetchTodayTodos()
+        fetchTomorrowTodos()
+    }
+    
+    public func fetchTodayTodos() {
+        todayTodos = DatabaseManager.shared.fetchPendingTodos(upTo: Date())
+    }
+    
     public func fetchTomorrowTodos() {
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
         tomorrowTodos = DatabaseManager.shared.fetchTodos(for: tomorrow)
@@ -83,7 +93,7 @@ public class MainViewModel: ObservableObject {
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
         let todo = TodoItem(title: title, notes: notes, targetDate: tomorrow)
         DatabaseManager.shared.saveTodo(todo)
-        fetchTomorrowTodos()
+        refreshTodos()
         todoNotes = "" // Clear after add
     }
     
@@ -91,12 +101,27 @@ public class MainViewModel: ObservableObject {
         var updated = todo
         updated.isCompleted.toggle()
         DatabaseManager.shared.updateTodo(updated)
-        fetchTomorrowTodos()
+        refreshTodos()
     }
     
     public func deleteTodo(_ todo: TodoItem) {
         DatabaseManager.shared.deleteTodo(id: todo.id)
-        fetchTomorrowTodos()
+        refreshTodos()
+    }
+    
+    public func startTodoAsTask(_ todo: TodoItem) {
+        // Mark todo as completed
+        var updated = todo
+        updated.isCompleted = true
+        DatabaseManager.shared.updateTodo(updated)
+        refreshTodos()
+        
+        // Start tracking as a task
+        calendarManager.logWork(
+            title: todo.title,
+            notes: todo.notes,
+            type: .task
+        )
     }
     
     // MARK: - Reminder Settings

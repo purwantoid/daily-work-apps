@@ -12,6 +12,8 @@ public struct EventRow: View {
     @State private var editedNotes = ""
     @State private var editedType: EventType = .task
     
+    @State private var showingDetail = false
+    
     public init(event: WorkEvent, onResume: (() -> Void)? = nil, onDelete: (() -> Void)? = nil, onUpdate: ((WorkEvent) -> Void)? = nil) {
         self.event = event
         self.onResume = onResume
@@ -34,40 +36,49 @@ public struct EventRow: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .frame(width: 35, alignment: .leading)
+                .frame(width: 38, alignment: .leading)
             } else {
-                Image(systemName: event.type.icon)
-                    .font(.system(size: 14))
-                    .foregroundColor(event.type.color)
-                    .frame(width: 35, alignment: .leading)
+                ZStack {
+                    Circle()
+                        .fill(event.type.color.opacity(0.06))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: event.type.icon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(event.type.color)
+                }
+                .frame(width: 38, alignment: .leading)
             }
             
             // Time
             Text(event.timeFormatted)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(.custom("JetBrains Mono", size: 12))
                 .foregroundColor(.black.opacity(0.4))
-                .frame(width: 75, alignment: .leading)
+                .frame(width: 55, alignment: .leading)
             
             // Title & Notes
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(event.title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.custom("JetBrains Mono", size: 14)).bold()
                     .foregroundColor(event.isPaused ? .black.opacity(0.5) : .black.opacity(0.8))
                 
                 if let notes = event.notes {
                     Text(notes)
-                        .font(.system(size: 14, design: .rounded))
+                        .font(.custom("JetBrains Mono", size: 10))
                         .foregroundColor(.black.opacity(0.4))
                         .lineLimit(1)
                 }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showingDetail = true
             }
             
             Spacer()
             
             // Duration & Copy
-            VStack(alignment: .trailing, spacing: 6) {
+            VStack(alignment: .trailing, spacing: 4) {
                 Text(event.durationFormatted)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .font(.custom("JetBrains Mono", size: 12))
                     .foregroundColor(.black.opacity(0.4))
                 
                 Button(action: {
@@ -82,7 +93,10 @@ public struct EventRow: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
+        .popover(isPresented: $showingDetail) {
+            EventDetailView(event: event)
+        }
         .contextMenu {
             Button(action: {
                 editedTitle = event.title
@@ -102,11 +116,13 @@ public struct EventRow: View {
                 Text("Edit Event")
                     .font(.headline)
                 
-                TextField("Title", text: $editedTitle)
+                TextField("Title", text: $editedTitle, axis: .vertical)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .lineLimit(1...3)
                 
-                TextField("Notes", text: $editedNotes)
+                TextField("Notes", text: $editedNotes, axis: .vertical)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .lineLimit(2...5)
                 
                 Picker("Type", selection: $editedType) {
                     ForEach(EventType.allCases.filter { $0 != .workBlock }) { type in

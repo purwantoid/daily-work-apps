@@ -175,8 +175,9 @@ public class DatabaseManager {
     public func fetchTodos(for date: Date) -> [TodoItem] {
         guard let db = db else { return [] }
         
-        let startOfDay = Calendar.current.startOfDay(for: date).timeIntervalSince1970
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: date))!.timeIntervalSince1970
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date).timeIntervalSince1970
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: date))!.timeIntervalSince1970
 
         do {
             let query = todoItems.filter(todoTargetDate >= startOfDay && todoTargetDate < endOfDay)
@@ -195,6 +196,34 @@ public class DatabaseManager {
             return items
         } catch {
             print("Fetch todos error: \(error)")
+            return []
+        }
+    }
+
+    public func fetchPendingTodos(upTo date: Date) -> [TodoItem] {
+        guard let db = db else { return [] }
+        
+        // We want all tasks whose target date is <= end of current day AND they are NOT completed
+        let calendar = Calendar.current
+        let endOfToday = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: date))!.timeIntervalSince1970
+
+        do {
+            let query = todoItems.filter(todoTargetDate < endOfToday && todoIsCompleted == false)
+            var items: [TodoItem] = []
+            for item in try db.prepare(query) {
+                if let uuid = UUID(uuidString: item[todoId]) {
+                    items.append(TodoItem(
+                        id: uuid,
+                        title: item[todoTitle],
+                        notes: item[todoNotes],
+                        targetDate: Date(timeIntervalSince1970: item[todoTargetDate]),
+                        isCompleted: item[todoIsCompleted]
+                    ))
+                }
+            }
+            return items
+        } catch {
+            print("Fetch pending todos error: \(error)")
             return []
         }
     }

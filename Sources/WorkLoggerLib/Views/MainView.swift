@@ -17,13 +17,13 @@ public struct MainView: View {
         VStack(spacing: 0) {
             // Header
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text("Work Logger")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.custom("JetBrains Mono", size: 20)).bold()
                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.15))
                     
                     Text(Date().formatted(.dateTime.weekday(.abbreviated).month().day()))
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.custom("JetBrains Mono", size: 11))
                         .foregroundColor(.black.opacity(0.4))
                 }
                 
@@ -52,8 +52,8 @@ public struct MainView: View {
                 .help("Quit Application")
             }
             .padding(.horizontal, 24)
-            .padding(.top, 24)
-            .padding(.bottom, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
             
             // Quick Log Input Area
             VStack(spacing: 16) {
@@ -68,20 +68,20 @@ public struct MainView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: viewModel.selectedType.icon)
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                             .foregroundColor(.blue.opacity(0.8))
                         
                         Text(viewModel.selectedType.rawValue)
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 13)).bold()
                         
                         Image(systemName: "chevron.up.chevron.down")
-                            .font(.system(size: 10))
+                            .font(.system(size: 9))
                             .foregroundColor(.secondary.opacity(0.5))
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .background(Color.primary.opacity(0.05))
-                    .cornerRadius(8)
+                    .cornerRadius(6)
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
@@ -93,16 +93,18 @@ public struct MainView: View {
             
             // Inputs Card
                 VStack(spacing: 0) {
-                    HStack(alignment: .center, spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "pencil.line")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.black.opacity(0.4))
+                            .padding(.top, 2)
                         
-                        TextField("Task title...", text: $viewModel.quickLogText)
+                        TextField("Task title...", text: $viewModel.quickLogText, axis: .vertical)
                             .textFieldStyle(PlainTextFieldStyle())
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 15)).bold()
                             .foregroundColor(.black.opacity(0.8))
                             .focused($isTitleFocused)
+                            .lineLimit(1...3)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
@@ -119,10 +121,11 @@ public struct MainView: View {
                             .foregroundColor(.black.opacity(0.3))
                             .padding(.top, 3)
                         
-                        TextField("Add notes or description (optional)", text: $viewModel.quickLogNotes)
+                        TextField("Add notes or description (optional)", text: $viewModel.quickLogNotes, axis: .vertical)
                             .textFieldStyle(PlainTextFieldStyle())
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 12))
                             .foregroundColor(.black.opacity(0.6))
+                            .lineLimit(1...5)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
@@ -143,11 +146,11 @@ public struct MainView: View {
                         Text("Start Tracking")
                         Spacer()
                     }
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.custom("JetBrains Mono", size: 13)).bold()
                     .foregroundColor(.white)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 10)
                     .background(viewModel.quickLogText.isEmpty ? Color.blue.opacity(0.3) : Color.blue)
-                    .cornerRadius(12)
+                    .cornerRadius(10)
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.quickLogText.isEmpty)
@@ -179,12 +182,12 @@ public struct MainView: View {
                     }
                     .buttonStyle(.plain)
                     
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(active.title)
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 14)).bold()
                             .foregroundColor(.black.opacity(0.8))
                         Text(active.isPaused ? "Paused" : "Tracking...")
-                            .font(.system(size: 14, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 11))
                             .foregroundColor(active.isPaused ? .blue.opacity(0.6) : .black.opacity(0.5))
                     }
                 } else {
@@ -198,12 +201,12 @@ public struct MainView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("No active task")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 14)).bold()
                             .foregroundColor(.black.opacity(0.8))
                         Text("Log something to start tracking")
-                            .font(.system(size: 14, design: .rounded))
+                            .font(.custom("JetBrains Mono", size: 11))
                             .foregroundColor(.black.opacity(0.5))
                     }
                 }
@@ -242,19 +245,19 @@ public struct MainView: View {
                     }
                 }
             }
-            .padding(16)
+            .padding(12)
             .background(Color.primary.opacity(0.025))
-            .cornerRadius(20)
+            .cornerRadius(16)
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 20)
             
             // Tab Switcher
             HStack(spacing: 0) {
-                TabButton(title: "Timeline", icon: "calendar", isSelected: viewModel.selectedTab == .timeline, namespace: animation) {
+                TabButton(title: "Timeline", icon: "timer.square", isSelected: viewModel.selectedTab == .timeline, namespace: animation) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .timeline }
                 }
                 
-                TabButton(title: "Summary", icon: "list.bullet.indent", isSelected: viewModel.selectedTab == .summary, namespace: animation) {
+                TabButton(title: "Summary", icon: "doc.plaintext.fill", isSelected: viewModel.selectedTab == .summary, namespace: animation) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .summary }
                 }
                 
@@ -262,11 +265,11 @@ public struct MainView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .tomorrow }
                 }
             }
-            .padding(6)
+            .padding(4)
             .background(Color.primary.opacity(0.04))
-            .cornerRadius(18)
+            .cornerRadius(12)
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 20)
             
             // Content
             Group {
@@ -291,9 +294,11 @@ public struct MainView: View {
                 } else {
                     TimelineContentView(
                         events: viewModel.events,
+                        todayTodos: viewModel.todayTodos,
                         onResume: { event in withAnimation { viewModel.resumeTracking(event: event) } },
                         onDelete: { event in withAnimation { viewModel.deleteEvent(event) } },
-                        onUpdate: { event in withAnimation { viewModel.updateEvent(event) } }
+                        onUpdate: { event in withAnimation { viewModel.updateEvent(event) } },
+                        onStartTodo: { todo in withAnimation { viewModel.startTodoAsTask(todo) } }
                     )
                     .transition(.opacity)
                 }
@@ -313,8 +318,8 @@ public struct MainView: View {
                 Text("to quick log from anywhere")
                     .foregroundColor(.secondary)
             }
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .padding(.vertical, 20)
+            .font(.custom("JetBrains Mono", size: 10))
+            .padding(.vertical, 16)
         }
         .background(
             ZStack {
