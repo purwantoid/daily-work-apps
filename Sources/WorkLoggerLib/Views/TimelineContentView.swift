@@ -72,9 +72,25 @@ public struct TimelineContentView: View {
                             ForEach(todayTodos) { todo in
                                 HStack(spacing: 16) {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text(todo.title)
-                                            .font(.custom("JetBrains Mono", size: 13)).bold()
-                                            .foregroundColor(.black.opacity(0.7))
+                                        HStack(spacing: 6) {
+                                            Image(systemName: todo.type.icon)
+                                                .font(.system(size: 10))
+                                                .foregroundColor(todo.type.color)
+                                            Text(todo.title)
+                                                .font(.custom("JetBrains Mono", size: 13)).bold()
+                                                .foregroundColor(.black.opacity(0.7))
+                                        }
+                                        
+                                        if let start = todo.plannedStartTime, let end = todo.plannedEndTime {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "timer")
+                                                    .font(.system(size: 9))
+                                                Text("\(start.formatted(.dateTime.hour().minute())) – \(end.formatted(.dateTime.hour().minute()))")
+                                                    .font(.custom("JetBrains Mono", size: 9))
+                                            }
+                                            .foregroundColor(.blue.opacity(0.6))
+                                            .padding(.top, 1)
+                                        }
                                         
                                         if let notes = todo.notes {
                                             Text(notes)

@@ -261,7 +261,7 @@ public struct MainView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .summary }
                 }
                 
-                TabButton(title: "Tomorrow", icon: "calendar.badge.plus", isSelected: viewModel.selectedTab == .tomorrow, namespace: animation) {
+                TabButton(title: "Plan", icon: "calendar.badge.plus", isSelected: viewModel.selectedTab == .tomorrow, namespace: animation) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { viewModel.selectedTab = .tomorrow }
                 }
             }
@@ -282,11 +282,18 @@ public struct MainView: View {
                     )
                     .transition(.opacity)
                 } else if viewModel.selectedTab == .tomorrow {
-                    TomorrowPlanView(
-                        todos: viewModel.tomorrowTodos,
+                    PlanView(
+                        todayTodos: viewModel.todayTodos,
+                        tomorrowTodos: viewModel.tomorrowTodos,
                         todoTitle: $viewModel.todoTitle,
                         todoNotes: $viewModel.todoNotes,
-                        onAdd: { title, notes in withAnimation { viewModel.addTodo(title: title, notes: notes) } },
+                        todoType: $viewModel.todoType,
+                        plannedStartTime: $viewModel.todoPlannedStartTime,
+                        plannedEndTime: $viewModel.todoPlannedEndTime,
+                        planDate: $viewModel.planDate,
+                        onAdd: { title, notes, date, type, start, end in 
+                            withAnimation { viewModel.addTodo(title: title, notes: notes, targetDate: date, type: type, plannedStartTime: start, plannedEndTime: end) } 
+                        },
                         onToggle: { todo in withAnimation { viewModel.toggleTodo(todo) } },
                         onDelete: { todo in withAnimation { viewModel.deleteTodo(todo) } },
                         onUpdate: { todo in withAnimation { viewModel.updateTodo(todo) } }

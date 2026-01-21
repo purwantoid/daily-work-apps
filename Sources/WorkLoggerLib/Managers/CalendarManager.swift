@@ -23,6 +23,10 @@ public class CalendarManager: ObservableObject {
     
     private func loadEvents() {
         events = DatabaseManager.shared.fetchEvents()
+        // Recovery: find the first event that's not paused and make it active
+        if let active = events.first(where: { !$0.isPaused }) {
+            activeTrackingEvent = active
+        }
     }
     
     func authenticate() {
@@ -77,9 +81,20 @@ public class CalendarManager: ObservableObject {
     }
     
     func logWork(title: String, notes: String?, type: EventType) {
-        if activeTrackingEvent != nil {
-            endTracking() // Changed from pause to end for sync purposes
+        // Stop EVERY unpaused task
+        for i in 0..<events.count {
+            if !events[i].isPaused {
+                var event = events[i]
+                if let lastStart = event.lastStartTime {
+                    event.totalAccumulatedDuration += Date().timeIntervalSince(lastStart)
+                }
+                event.isPaused = true
+                event.lastStartTime = nil
+                events[i] = event
+                DatabaseManager.shared.updateEvent(event)
+            }
         }
+        activeTrackingEvent = nil
         startTracking(title: title, notes: notes, type: type)
     }
     
@@ -117,9 +132,18 @@ public class CalendarManager: ObservableObject {
         let event = toResume ?? activeTrackingEvent
         guard var targetEvent = event else { return }
         
-        // If we are resuming a different task, end the current active one first
-        if activeTrackingEvent != nil && activeTrackingEvent?.id != targetEvent.id {
-            endTracking()
+        // If we are resuming a different task, pause ALL currently active ones first
+        for i in 0..<events.count {
+            if !events[i].isPaused && events[i].id != targetEvent.id {
+                var e = events[i]
+                if let lastStart = e.lastStartTime {
+                    e.totalAccumulatedDuration += Date().timeIntervalSince(lastStart)
+                }
+                e.isPaused = true
+                e.lastStartTime = nil
+                events[i] = e
+                DatabaseManager.shared.updateEvent(e)
+            }
         }
         
         targetEvent.isPaused = false

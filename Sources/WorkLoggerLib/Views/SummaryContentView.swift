@@ -39,7 +39,7 @@ public struct SummaryContentView: View {
         
         content += "📊 Stats:\n"
         content += "• Meetings: \(meetingTime)\n"
-        content += "• Deep Work: \(deepWorkTime)\n"
+        content += "• Total Time: \(totalTime)\n"
         
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(content, forType: .string)
@@ -51,8 +51,8 @@ public struct SummaryContentView: View {
         return "\(minutes / 60)h \(minutes % 60)m"
     }
     
-    private var deepWorkTime: String {
-        let seconds = filteredEvents.filter { $0.type == .task || $0.type == .codeReview }.reduce(0) { $0 + $1.duration }
+    private var totalTime: String {
+        let seconds = filteredEvents.reduce(0) { $0 + $1.duration }
         let minutes = Int(seconds / 60)
         return "\(minutes / 60)h \(minutes % 60)m"
     }
@@ -89,7 +89,7 @@ public struct SummaryContentView: View {
                 
                 HStack(spacing: 16) {
                     SummaryCard(title: "MEETINGS", value: meetingTime, subtitle: "\(filteredEvents.filter { $0.type == .meeting }.count) events", color: Color(red: 0.7, green: 0.4, blue: 0.9), icon: "video.bubble.left.fill")
-                    SummaryCard(title: "DEEP WORK", value: deepWorkTime, subtitle: "\(filteredEvents.filter { $0.type == .task || $0.type == .codeReview }.count) blocks", color: Color(red: 0.3, green: 0.6, blue: 1.0), icon: "terminal.fill")
+                    SummaryCard(title: "TOTAL TIME", value: totalTime, subtitle: "\(filteredEvents.count) items", color: Color(red: 0.1, green: 0.6, blue: 0.5), icon: "timer")
                 }
                 .padding(.horizontal, 24)
                 

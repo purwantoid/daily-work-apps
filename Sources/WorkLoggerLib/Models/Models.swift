@@ -97,12 +97,18 @@ public struct TodoItem: Identifiable {
     public var notes: String?
     public var targetDate: Date
     public var isCompleted: Bool
+    public var type: EventType
+    public var plannedStartTime: Date?
+    public var plannedEndTime: Date?
     
-    public init(id: UUID = UUID(), title: String, notes: String? = nil, targetDate: Date, isCompleted: Bool = false) {
+    public init(id: UUID = UUID(), title: String, notes: String? = nil, targetDate: Date, isCompleted: Bool = false, type: EventType = .task, plannedStartTime: Date? = nil, plannedEndTime: Date? = nil) {
         self.id = id
         self.title = title
         self.notes = notes
         self.targetDate = targetDate
         self.isCompleted = isCompleted
+        self.type = type
+        self.plannedStartTime = plannedStartTime
+        self.plannedEndTime = plannedEndTime
     }
 }

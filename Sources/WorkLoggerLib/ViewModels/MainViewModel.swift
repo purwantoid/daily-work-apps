@@ -14,6 +14,10 @@ public class MainViewModel: ObservableObject {
     @Published public var todayTodos: [TodoItem] = []
     @Published public var todoTitle: String = ""
     @Published public var todoNotes: String = ""
+    @Published public var todoPlannedStartTime: Date = Date()
+    @Published public var todoPlannedEndTime: Date = Date().addingTimeInterval(3600)
+    @Published public var todoType: EventType = .task
+    @Published public var planDate: Date = Date()
     
     @Published public var morningReminderTime: Date = Date()
     @Published public var eveningReminderTime: Date = Date()
@@ -91,9 +95,16 @@ public class MainViewModel: ObservableObject {
         tomorrowTodos = DatabaseManager.shared.fetchTodos(for: tomorrow)
     }
     
-    public func addTodo(title: String, notes: String? = nil) {
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-        let todo = TodoItem(title: title, notes: notes, targetDate: tomorrow)
+    public func addTodo(title: String, notes: String? = nil, targetDate: Date? = nil, type: EventType = .task, plannedStartTime: Date? = nil, plannedEndTime: Date? = nil) {
+        let date = targetDate ?? Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+        let todo = TodoItem(
+            title: title, 
+            notes: notes, 
+            targetDate: date,
+            type: type,
+            plannedStartTime: plannedStartTime,
+            plannedEndTime: plannedEndTime
+        )
         DatabaseManager.shared.saveTodo(todo)
         refreshTodos()
         todoNotes = "" // Clear after add

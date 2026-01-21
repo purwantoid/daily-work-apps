@@ -27,6 +27,9 @@ public class DatabaseManager {
     private let todoNotes = Expression<String?>("notes")
     private let todoTargetDate = Expression<Double>("target_date")
     private let todoIsCompleted = Expression<Bool>("is_completed")
+    private let todoType = Expression<String>("type")
+    private let todoPlannedStartTime = Expression<Double?>("planned_start_time")
+    private let todoPlannedEndTime = Expression<Double?>("planned_end_time")
     
     private init() {
         setupDatabase()
@@ -72,6 +75,9 @@ public class DatabaseManager {
             
             // Migration for existing table
             _ = try? db.run(todoItems.addColumn(todoNotes))
+            _ = try? db.run(todoItems.addColumn(todoType, defaultValue: EventType.task.rawValue))
+            _ = try? db.run(todoItems.addColumn(todoPlannedStartTime))
+            _ = try? db.run(todoItems.addColumn(todoPlannedEndTime))
         } catch {
             print("Table creation error: \(error)")
         }
@@ -164,7 +170,10 @@ public class DatabaseManager {
                 todoTitle <- todo.title,
                 todoNotes <- todo.notes,
                 todoTargetDate <- todo.targetDate.timeIntervalSince1970,
-                todoIsCompleted <- todo.isCompleted
+                todoIsCompleted <- todo.isCompleted,
+                todoType <- todo.type.rawValue,
+                todoPlannedStartTime <- todo.plannedStartTime?.timeIntervalSince1970,
+                todoPlannedEndTime <- todo.plannedEndTime?.timeIntervalSince1970
             )
             try db.run(insert)
         } catch {
@@ -189,7 +198,10 @@ public class DatabaseManager {
                         title: item[todoTitle],
                         notes: item[todoNotes],
                         targetDate: Date(timeIntervalSince1970: item[todoTargetDate]),
-                        isCompleted: item[todoIsCompleted]
+                        isCompleted: item[todoIsCompleted],
+                        type: EventType(rawValue: item[todoType]) ?? .task,
+                        plannedStartTime: item[todoPlannedStartTime] != nil ? Date(timeIntervalSince1970: item[todoPlannedStartTime]!) : nil,
+                        plannedEndTime: item[todoPlannedEndTime] != nil ? Date(timeIntervalSince1970: item[todoPlannedEndTime]!) : nil
                     ))
                 }
             }
@@ -217,7 +229,10 @@ public class DatabaseManager {
                         title: item[todoTitle],
                         notes: item[todoNotes],
                         targetDate: Date(timeIntervalSince1970: item[todoTargetDate]),
-                        isCompleted: item[todoIsCompleted]
+                        isCompleted: item[todoIsCompleted],
+                        type: EventType(rawValue: item[todoType]) ?? .task,
+                        plannedStartTime: item[todoPlannedStartTime] != nil ? Date(timeIntervalSince1970: item[todoPlannedStartTime]!) : nil,
+                        plannedEndTime: item[todoPlannedEndTime] != nil ? Date(timeIntervalSince1970: item[todoPlannedEndTime]!) : nil
                     ))
                 }
             }
@@ -236,7 +251,10 @@ public class DatabaseManager {
                 todoTitle <- todo.title,
                 todoNotes <- todo.notes,
                 todoTargetDate <- todo.targetDate.timeIntervalSince1970,
-                todoIsCompleted <- todo.isCompleted
+                todoIsCompleted <- todo.isCompleted,
+                todoType <- todo.type.rawValue,
+                todoPlannedStartTime <- todo.plannedStartTime?.timeIntervalSince1970,
+                todoPlannedEndTime <- todo.plannedEndTime?.timeIntervalSince1970
             ))
         } catch {
             print("Update todo error: \(error)")

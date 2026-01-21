@@ -49,11 +49,18 @@ public struct EventRow: View {
                 .frame(width: 38, alignment: .leading)
             }
             
-            // Time
-            Text(event.timeFormatted)
-                .font(.custom("JetBrains Mono", size: 12))
-                .foregroundColor(.black.opacity(0.4))
-                .frame(width: 55, alignment: .leading)
+            // Time Range
+            VStack(alignment: .leading, spacing: 1) {
+                Text(event.startTime.formatted(.dateTime.hour().minute()))
+                    .foregroundColor(.black.opacity(0.4))
+                
+                if event.endTime != event.startTime {
+                    Text(event.endTime.formatted(.dateTime.hour().minute()))
+                        .foregroundColor(.black.opacity(0.15))
+                }
+            }
+            .font(.custom("JetBrains Mono", size: 10))
+            .frame(width: 55, alignment: .leading)
             
             // Title & Notes
             VStack(alignment: .leading, spacing: 1) {
